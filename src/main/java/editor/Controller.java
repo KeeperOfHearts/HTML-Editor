@@ -1,3 +1,4 @@
+package editor;
 
 import javax.swing.text.html.HTMLDocument;
 import java.io.File;
