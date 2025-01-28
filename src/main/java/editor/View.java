@@ -14,6 +14,15 @@ public class View extends JFrame implements ActionListener {
     private JEditorPane plainTextPane = new JEditorPane();
     private Controller controller;
 
+    public View() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
+
     public Controller getController() {
         return this.controller;
     }
@@ -39,6 +48,15 @@ public class View extends JFrame implements ActionListener {
     }
 
     public void initMenuBar() {
+        JMenuBar jMenuBar = new JMenuBar();
+        MenuHelper.initFileMenu(this, jMenuBar);
+        MenuHelper.initEditMenu(this, jMenuBar);
+        MenuHelper.initStyleMenu(this, jMenuBar);
+        MenuHelper.initAlignMenu(this, jMenuBar);
+        MenuHelper.initColorMenu(this, jMenuBar);
+        MenuHelper.initFontMenu(this, jMenuBar);
+        MenuHelper.initHelpMenu(this, jMenuBar);
+        this.getContentPane().add(jMenuBar, BorderLayout.NORTH);
 
     }
     public void initEditor() {
@@ -60,5 +78,13 @@ public class View extends JFrame implements ActionListener {
 
     public void selectedTabChanged() {
 
+    }
+
+    public boolean canUndo() {
+        return false;
+    }
+
+    public boolean canRedo() {
+        return false;
     }
 }
