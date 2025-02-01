@@ -1,12 +1,19 @@
 package editor;
 
+import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public class Controller {
     private View view;
     private HTMLDocument document;
     private File currentFile;
+
+    private HTMLEditorKit kit = new HTMLEditorKit();
 
     public Controller(View view) {
         this.view = view;
@@ -22,6 +29,35 @@ public class Controller {
 
     public void init() {
 
+    }
+
+    public void resetDocument() {
+        if (document != null) {
+            document.removeUndoableEditListener(view.getUndoListener());
+        }
+        document = (HTMLDocument) kit.createDefaultDocument();
+        document.addUndoableEditListener(view.getUndoListener());
+        view.update();
+    }
+
+    public void setPlainText(String text) {
+        resetDocument();
+        StringReader reader = new StringReader(text);
+        try {
+            kit.read(reader, document, 0);
+        } catch (Exception e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
+    public String getPlainText() {
+        StringWriter writer = new StringWriter();
+        try {
+            kit.write(writer, document, 0, document.getLength());
+        } catch (IOException | BadLocationException e) {
+            ExceptionHandler.log(e);
+        }
+        return writer.toString();
     }
 
     public HTMLDocument getDocument() {
