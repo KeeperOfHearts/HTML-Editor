@@ -1,12 +1,10 @@
 package editor;
 
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 
 public class Controller {
     private View view;
@@ -28,6 +26,14 @@ public class Controller {
     }
 
     public void init() {
+        createNewDocument();
+    }
+
+    public void createNewDocument() {
+        view.selectHtmlTab();
+        resetDocument();
+        view.setTitle("Sigma редактор");
+        currentFile = null;
 
     }
 
@@ -51,13 +57,13 @@ public class Controller {
     }
 
     public String getPlainText() {
-        StringWriter writer = new StringWriter();
-        try {
+        try (StringWriter writer = new StringWriter()) {
             kit.write(writer, document, 0, document.getLength());
+            return writer.toString();
         } catch (IOException | BadLocationException e) {
             ExceptionHandler.log(e);
         }
-        return writer.toString();
+        return null;
     }
 
     public HTMLDocument getDocument() {
@@ -66,5 +72,53 @@ public class Controller {
 
     public void exit() {
         System.exit(0);
+    }
+
+    public void saveDocumentAs() {
+        view.selectHtmlTab();
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new HTMLFileFilter());
+        int option = chooser.showSaveDialog(view);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            currentFile = chooser.getSelectedFile();
+            view.setTitle(currentFile.getName());
+            try (FileWriter fileWriter = new FileWriter(currentFile)) {
+                kit.write(fileWriter, document, 0, document.getLength());
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e);
+            }
+        }
+
+    }
+
+    public void saveDocument() {
+        if (currentFile == null)
+            saveDocumentAs();
+        else {
+            view.selectHtmlTab();
+            try (FileWriter fileWriter = new FileWriter(currentFile)) {
+                kit.write(fileWriter, document, 0, document.getLength());
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e);
+            }
+        }
+    }
+
+    public void openDocument() {
+        view.selectHtmlTab();
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new HTMLFileFilter());
+        int option = chooser.showOpenDialog(view);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            resetDocument();
+            currentFile = chooser.getSelectedFile();
+            view.setTitle(currentFile.getName());
+            try (FileReader fileReader = new FileReader(currentFile)) {
+                kit.read(fileReader, document, 0);
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e);
+            }
+            view.resetUndo();
+        }
     }
 }

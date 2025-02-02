@@ -49,7 +49,27 @@ public class View extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        String action = e.getActionCommand();
+        switch (action) {
+            case "Новый":
+                controller.createNewDocument();
+                break;
+            case "Открыть":
+                controller.openDocument();
+                break;
+            case "Сохранить":
+                controller.saveDocument();
+                break;
+            case "Сохранить как...":
+                controller.saveDocumentAs();
+                break;
+            case "Выход":
+                controller.exit();
+                break;
+            case "О программе":
+                showAbout();
+                break;
+        }
     }
 
     public void init() {
@@ -92,7 +112,16 @@ public class View extends JFrame implements ActionListener {
     }
 
     public void selectedTabChanged() {
-
+        int current_index = tabbedPane.getSelectedIndex();
+        switch (current_index) {
+            case 0:
+                controller.setPlainText(plainTextPane.getText());
+                break;
+            case 1:
+                plainTextPane.setText(controller.getPlainText());
+                break;
+        }
+        resetUndo();
     }
 
 
@@ -138,6 +167,7 @@ public class View extends JFrame implements ActionListener {
         tabbedPane.setSelectedIndex(0);
         resetUndo();
     }
+
 
     public void update() {
         HTMLDocument document = controller.getDocument();
